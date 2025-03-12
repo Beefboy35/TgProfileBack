@@ -1,15 +1,21 @@
+import asyncio
+
 import aiohttp
-from aiogram import Router, F
+from aiogram import Router, F, Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
 from aiogram.filters import Command
 from loguru import logger
 from starlette import status
+from tortoise import Tortoise
 from tortoise.exceptions import IntegrityError
 
 from app.bot.kbs import run_app, main_kb
 from app.config import settings
+from app.dao.database import init_db
 from app.dao.models import User
 
 
@@ -21,12 +27,12 @@ async def cmd_start(msg: Message):
 
 @router.message(F.text == "🧠About")
 async def get_info(msg: Message):
-    await msg.answer("Данное приложение создано в качестве прототипа для обмена учетными данными между пользователями")
+    await msg.answer("Данное приложение создано в качестве прототипа на стеке: Vue3, TypeScript, FastAPI, Postgresql, Tortoise ORM")
 
 @router.message(F.text == "🤑Open app")
 @router.message(Command("open_app"))
 async def open_app(msg: Message):
-    telegram_id = msg.from_user.id
+    telegram_id = int(msg.from_user.id)
     username = msg.from_user.full_name
     first_name = msg.from_user.first_name
     last_name = msg.from_user.last_name
@@ -38,7 +44,6 @@ async def open_app(msg: Message):
         last_name=last_name,
         nickname=username
     )
-
     try:
         # Сохраняем пользователя в базу данных
         await user.save()
@@ -48,6 +53,28 @@ async def open_app(msg: Message):
         # Обработка случая, если пользователь уже существует
         logger.info(f"Пользователь {username} уже существует")
         await msg.answer("Launch app!🚀", reply_markup=run_app(telegram_id))
+
     except Exception as e:
         await msg.answer("Something went wrong. Try again later.")
         logger.error(f"Unexpected error: {e}")
+        raise e
+
+async def main():
+    bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    dp = Dispatcher()
+    dp.include_router(router)
+
+    logger.info("The bot is starting...")
+    await bot.delete_webhook(drop_pending_updates=True)
+    await init_db()
+    try:
+        # Start polling
+        await dp.start_polling(bot)
+    finally:
+        # Ensure the bot session is closed
+        await bot.session.close()
+        await Tortoise.close_connections()
+        logger.info("The bot session has been closed.")
+
+if __name__ == "__main__":
+    asyncio.run(main())

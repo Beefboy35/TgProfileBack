@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -19,8 +21,10 @@ async def set_commands():
 async def start_bot():
     await set_commands()
     dp.include_router(router)
-    logger.info("Бот успешно запущен.")
+    await bot.delete_webhook()
+
 
 async def stop_bot():
-    await bot.delete_webhook()
+    await bot.delete_webhook(drop_pending_updates=True)
     logger.info("Бот остановлен")
+

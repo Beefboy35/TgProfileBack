@@ -5,9 +5,9 @@ from starlette import status
 from starlette.responses import JSONResponse
 from tortoise.exceptions import DoesNotExist, IntegrityError
 
-from app.dao.dao import UserDAO
+
 from app.dao.models import User
-from app.dao.schemas import UserToAdd
+from app.dao.schemas import UserToAdd, UpdateBirthdayRequest, UserToReturn
 
 router = APIRouter(tags=["Users"], prefix="/users")
 
@@ -20,6 +20,19 @@ async def get_all():
     except Exception as e:
         logger.error(f"Ошибка при получение всех юзеров: {e}")
 
+@router.get("/get_by_id/{telegram_id}")
+async def get_user_by_tg_id(telegram_id: int):
+    user = await User.get_or_none(telegram_id=telegram_id)
+    if not user:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content="User not found")
+    return UserToReturn(
+        telegram_id=user.telegram_id,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        nickname=user.nickname,
+        time_of_birthday=user.time_of_birthday,
+        age=user.age
+    )
 @router.post("/add_user")
 async def add_user(user: UserToAdd):
     try:
@@ -38,13 +51,13 @@ async def add_user(user: UserToAdd):
         logger.error(f"Ошибка при добавление юзера: {e}")
         return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content="Что-то пошло не так попробуйте позже")
 
-@router.post("/update_birthday/{telegram_id}")
-async def update_birthday(telegram_id: int, date_of_birth: str):
+@router.post("/update_birthday")
+async def update_birthday(request: UpdateBirthdayRequest):
     try:
-        await User.filter(telegram_id=telegram_id).update(time_of_birthday=date_of_birth)
-        return JSONResponse(status_code=200, content="Birthday updated successfully")
+        await User.filter(telegram_id=request.telegram_id).update(time_of_birthday=request.date_of_birth, age=request.age)
+        return JSONResponse(status_code=200, content="Дата рождения успешно добавлена!")
     except IntegrityError:
         return JSONResponse(status_code=404, content="User not found")
     except Exception as e:
         logger.error(f"Ошибка при добавлении даты рождения юзера: {e}")
-        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content="Что-то пошло не так попробуйте позже")
+        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=f"Что-то пошло не так попробуйте позже: {str(e)}")
