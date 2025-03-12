@@ -59,22 +59,3 @@ async def open_app(msg: Message):
         logger.error(f"Unexpected error: {e}")
         raise e
 
-async def main():
-    bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    dp = Dispatcher()
-    dp.include_router(router)
-
-    logger.info("The bot is starting...")
-    await bot.delete_webhook(drop_pending_updates=True)
-    await init_db()
-    try:
-        # Start polling
-        await dp.start_polling(bot)
-    finally:
-        # Ensure the bot session is closed
-        await bot.session.close()
-        await Tortoise.close_connections()
-        logger.info("The bot session has been closed.")
-
-if __name__ == "__main__":
-    asyncio.run(main())

@@ -25,15 +25,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[dict, None]:
     """Управление жизненным циклом приложения."""
     logger.info("Инициализация приложения...")
     await init_db()
-    # await start_bot()
-    # await bot.set_webhook(
-    #      url=webhook_url,
-    #      allowed_updates=dp.resolve_used_update_types(),
-    #      drop_pending_updates=True
-    #  )
-    #logger.success(f"Вебхук установлен: {webhook_url}")
+    await bot.set_webhook(
+         url=webhook_url,
+         allowed_updates=dp.resolve_used_update_types(),
+         drop_pending_updates=True
+     )
+    logger.success(f"Вебхук установлен: {webhook_url}")
+    await start_bot()
     yield
-    #await stop_bot()
+    await stop_bot()
     await Tortoise.close_connections()
     logger.info("Завершение работы приложения...")
 

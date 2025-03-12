@@ -13,14 +13,14 @@ services:
     command: >
       bash -c "
       aerich upgrade &&
-      python app/main.py
+      app/main.py
       "
     ports:
       - "8000:8000"
 
   db:
     image:
-      postgres:17
+      postgres:16
     container_name: tg-profile-db
     env_file:
       - .env

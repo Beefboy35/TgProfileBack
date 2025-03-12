@@ -21,7 +21,6 @@ async def set_commands():
 async def start_bot():
     await set_commands()
     dp.include_router(router)
-    await bot.delete_webhook()
 
 
 async def stop_bot():
