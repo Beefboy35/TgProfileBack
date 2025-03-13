@@ -1,20 +1,14 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-
 import uvicorn
-
-
 from aiogram.types import Update
 from fastapi import FastAPI
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from tortoise import Tortoise
-from tortoise.contrib.fastapi import register_tortoise
-
 from app.api.router import router as api_router
 from app.bot.create_bot import start_bot, stop_bot, dp, bot
-from app.bot.router import router
 from app.config import settings
 from app.dao.database import init_db
 
@@ -29,7 +23,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[dict, None]:
          url=webhook_url,
          allowed_updates=dp.resolve_used_update_types(),
          drop_pending_updates=True
-     )
+    )
     logger.success(f"Вебхук установлен: {webhook_url}")
     await start_bot()
     yield
@@ -70,5 +64,5 @@ async def webhook(request: Request) -> None:
         logger.info("Обновление успешно обработано.")
     except Exception as e:
         logger.error(f"Ошибка при обработке обновления с вебхука: {e}")
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="localhost", port=8005, reload=True)
+# if __name__ == "__main__":
+#     uvicorn.run("main:app", host="localhost", port=8005, reload=True)

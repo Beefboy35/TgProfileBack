@@ -11,7 +11,11 @@ class Setting(BaseSettings):
     FRONT_URL: str
     BASE_URL: str
 
-    model_config = SettingsConfigDict(env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env"))
+    model_config = SettingsConfigDict(
+        env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env"),
+        env_ignore_empty=True,
+        extra="ignore",
+    )
 
 
 settings = Setting()

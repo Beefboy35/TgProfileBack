@@ -27,7 +27,7 @@ async def cmd_start(msg: Message):
 
 @router.message(F.text == "🧠About")
 async def get_info(msg: Message):
-    await msg.answer("Данное приложение создано в качестве прототипа на стеке: Vue3, TypeScript, TailwindCSS, FastAPI, Postgresql, Tortoise ORM")
+    await msg.answer("Данное приложение создано в качестве прототипа на стеке: Vue3, TypeScript, Ta FastAPI, Postgresql, Tortoise ORM")
 
 @router.message(F.text == "🤑Open app")
 @router.message(Command("open_app"))
@@ -58,4 +58,5 @@ async def open_app(msg: Message):
         await msg.answer("Something went wrong. Try again later.")
         logger.error(f"Unexpected error: {e}")
         raise e
+
 

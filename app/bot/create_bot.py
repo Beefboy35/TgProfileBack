@@ -21,7 +21,7 @@ async def set_commands():
 async def start_bot():
     await set_commands()
     dp.include_router(router)
-
+    await dp.start_polling(bot)
 
 async def stop_bot():
     await bot.delete_webhook(drop_pending_updates=True)
