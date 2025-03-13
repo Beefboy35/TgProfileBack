@@ -24,7 +24,7 @@ class User(Base):
         first_name (str): Имя пользователя.
         last_name (str): Фамилия пользователя.
         nickname (str): Никнейм пользователя.
-        age (int): Возраст пользователя
+        age (int): Возраст пользователя.
         time_of_birthday (Optional[str]): Время до дня рождения (может быть None).
     """
     telegram_id = fields.CharField(max_length=10, unique=True)

@@ -63,12 +63,9 @@ def create_app() -> FastAPI:
 app = create_app()
 @app.post("/webhook", summary="Эндпоинт используемый для передачи обновлений от бота")
 async def webhook(request: Request) -> None:
-    logger.info("Получен запрос с вебхука.")
     try:
         update_data = await request.json()
         update = Update.model_validate(update_data, context={"bot": bot})
-        if update.message.from_user.username == "RealBeefBoy":
-            logger.info("Thats me baby")
         await dp.feed_update(bot, update)
         logger.info("Обновление успешно обработано.")
     except Exception as e:

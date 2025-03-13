@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     build:
@@ -5,7 +7,7 @@ services:
     env_file:
       - .env
     volumes:
-      - /app
+      - .:/app
     depends_on:
       - db
     environment:
@@ -13,14 +15,13 @@ services:
     command: >
       bash -c "
       aerich upgrade &&
-      app/main.py
+      python app/main.py
       "
     ports:
       - "8000:8000"
 
   db:
-    image:
-      postgres:16
+    image: postgres:17
     container_name: tg-profile-db
     env_file:
       - .env
@@ -29,7 +30,5 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
-
 volumes:
   db_data:
-
